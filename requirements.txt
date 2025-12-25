@@ -1,0 +1,7 @@
+# Ordr Auth Validator
+fastapi>=0.109.0
+uvicorn>=0.27.0
+
+# JWT Validation
+PyJWT>=2.8.0
+cryptography>=42.0.0
