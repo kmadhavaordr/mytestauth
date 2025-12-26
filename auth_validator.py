@@ -29,7 +29,11 @@ logger = logging.getLogger("ordr-auth")
 
 AZURE_CLIENT_ID = os.environ.get("AZURE_CLIENT_ID", "d63e5ccd-bd26-4b10-91b7-2dd7052577cb")
 AZURE_JWKS_URL = "https://login.microsoftonline.com/common/discovery/v2.0/keys"
-AZURE_ISSUER_PREFIX = "https://login.microsoftonline.com/"
+# Accept both Azure AD issuer formats
+AZURE_ISSUER_PREFIXES = [
+    "https://login.microsoftonline.com/",  # v2.0
+    "https://sts.windows.net/",             # v1.0
+]
 TEST_MODE = os.environ.get("TEST_MODE", "false").lower() == "true"
 
 # Accept multiple audience formats
@@ -99,9 +103,9 @@ def validate_jwt_token(token: str) -> dict:
                     options={"verify_exp": True, "verify_aud": True, "verify_iss": False}
                 )
                 
-                # Verify issuer is from Microsoft
+                # Verify issuer is from Microsoft (accept both v1.0 and v2.0)
                 issuer = payload.get("iss", "")
-                if not issuer.startswith(AZURE_ISSUER_PREFIX):
+                if not any(issuer.startswith(prefix) for prefix in AZURE_ISSUER_PREFIXES):
                     raise ValueError(f"Invalid issuer: {issuer}")
                 
                 logger.info(f"✅ Token validated with audience: {valid_aud}")
@@ -257,6 +261,7 @@ if __name__ == "__main__":
     logger.info(f"Starting Ordr Auth on port {port}")
     logger.info(f"Azure Client ID: {AZURE_CLIENT_ID}")
     logger.info(f"Valid audiences: {VALID_AUDIENCES}")
+    logger.info(f"Valid issuer prefixes: {AZURE_ISSUER_PREFIXES}")
     logger.info(f"Test Mode: {TEST_MODE}")
     
     uvicorn.run(app, host="0.0.0.0", port=port)
