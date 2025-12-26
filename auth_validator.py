@@ -49,8 +49,7 @@ VALID_AUDIENCES = [
 
 CUSTOMER_MAPPING = {
     "users": {
-        "kmadhava@ordr.net": "customer-a",
-        "mkidambi@ordr.net": "customer-a",
+        "kmadhava@ordr.net": "customer-b",
     },
     "tenants": {},
     "customers": {
